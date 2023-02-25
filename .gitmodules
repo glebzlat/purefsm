@@ -1,0 +1,3 @@
+[submodule "lib/type_pack"]
+	path = lib/type_pack
+	url = https://github.com/edKotinsky/type_pack.git
