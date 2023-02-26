@@ -5,6 +5,7 @@
 #include <functional>
 #include <type_pack.hpp>
 #include <type_traits>
+#include <utility>
 #include <variant>
 
 template <typename T, bool False>
@@ -16,6 +17,8 @@ namespace pure {
 
   template <class Gd1, class Gd2>
   struct match;
+
+  struct none {};
 
   namespace __details {
 
@@ -31,7 +34,8 @@ namespace pure {
 
   struct transition_base {};
 
-  template <class Source, class Event, class Target, class Action, class Guard>
+  template <class Source, class Event, class Target, class Action,
+            class Guard = none>
   struct transition : transition_base {
     using source_t = Source;
     using event_t = Event;
@@ -50,7 +54,8 @@ namespace pure {
     using sources = tp::type_pack<typename Ts::source_t...>;
     using events = tp::type_pack<typename Ts::event_t...>;
     using targets = tp::type_pack<typename Ts::target_t...>;
-    using guards = tp::type_pack<typename Ts::guard_t...>;
+    using guards = tp::concatenate_t<tp::type_pack<typename Ts::guard_t...>,
+                                     tp::just_type<none>>;
 
     using states = tp::concatenate_t<sources, targets>;
 
@@ -69,77 +74,24 @@ namespace pure {
                   "Duplicated transitions");
   };
 
-  template <class Source, class Event>
-  struct transition_key {
-    using source_t = Source;
-    using event_t = Event;
-  };
-
   namespace __details {
 
+    template <class F, typename... Args>
+    auto invoke_if(F&& f, Args&&... args) noexcept(
+        std::is_nothrow_invocable_v<F, Args...>) {
+      if constexpr (std::is_invocable<F, Args...>::value)
+        return std::invoke(f, std::forward<Args>(args)...);
+    }
+
     template <class T>
-    struct extract_transition_keys {};
-
-    template <>
-    struct extract_transition_keys<tp::empty_pack> {
-      using type = tp::empty_pack;
-    };
-
-    template <typename T, typename... Ts>
-    struct extract_transition_keys<tp::type_pack<T, Ts...>> {
-      using source_t = typename T::source_t;
-      using event_t = typename T::event_t;
-      using key = transition_key<source_t, event_t>;
-      using jt_key = tp::just_type<key>;
-
-      using type = tp::concatenate_t<
-          jt_key, typename extract_transition_keys<tp::type_pack<Ts...>>::type>;
-    };
-
-    template <class Target, class Action>
-    struct transition_data {
-      using target_t = Target;
-      using action_t = Action;
-    };
-
-    struct none_transition {};
-
-    template <class Table>
-    class transition_map {
-    private:
-      using transitions = typename Table::transitions;
-      using keys =
-          typename __details::extract_transition_keys<transitions>::type;
-      using guards = typename Table::guards;
-      using targets = typename Table::targets;
-
-      static constexpr std::size_t npos = transitions::size();
-
-      // template <class Key, std::size_t Idx>
-      // struct get_impl {
-      //   static constexpr std::size_t idx = tp::find<Key, keys, Idx>::value;
-      //   using target = tp::at_t<idx, targets>;
-      //   using transition = tp::at_t<idx, transitions>;
-      //   using action = typename transition::action_t;
-      //   using type = transition_data<target, action>;
-      // };
-
-    public:
-      template <class St, class Ev>
-      auto get() {
-        using key = transition_key<St, Ev>;
-        static constexpr std::size_t idx = tp::find<key, keys>::value;
-        if constexpr (idx == npos) return none_transition {};
-        else {
-          using target = tp::at_t<idx, targets>;
-          using transition = tp::at_t<idx, transitions>;
-          using action = typename transition::action_t;
-          using type = transition_data<target, action>;
-          return type {};
-        }
+    struct visitor {
+      inline auto operator()() {
+        return [&](const auto& arg) -> bool {
+          using arg_t = std::decay_t<decltype(arg)>;
+          return std::is_same_v<arg_t, T>;
+        };
       }
     };
-
   } // namespace __details
 
   template <class Table>
@@ -147,41 +99,59 @@ namespace pure {
   private:
     using state_v = typename Table::state_v;
     using event_v = typename Table::event_v;
+    using guard_v = typename Table::guard_v;
     using transition_pack = typename Table::transitions;
 
-    using map_t = __details::transition_map<Table>;
-    map_t m_map;
+    static constexpr std::size_t m_tr_count = transition_pack::size();
+
     state_v m_state;
+    guard_v m_guard;
 
     /*************************************************************************
      * Private methods
      ************************************************************************/
 
-    template <typename T, typename... Args>
-    inline auto event_impl(Args&&... args) -> std::enable_if_t<
-        !std::is_same<T, __details::none_transition>::value> {
-      using action_t = typename T::action_t;
-      using target_t = typename T::target_t;
-      m_state = target_t {};
-      if constexpr (std::is_invocable<action_t, Args...>::value)
-        std::invoke(action_t {}, std::forward<Args>(args)...);
-    }
+    template <class State, class Event, class Pack, std::size_t Idx>
+    struct event_impl {
+      template <typename... Args>
+      void operator()(state_v&, guard_v&, Args&&...) {}
+    };
 
-    template <typename T, typename... Args>
-    inline auto event_impl(Args&&...) noexcept -> std::enable_if_t<
-        std::is_same<T, __details::none_transition>::value> {}
+    template <class State, class Event, std::size_t Idx, typename T,
+              typename... Ts>
+    struct event_impl<State, Event, tp::type_pack<T, Ts...>, Idx> {
+      template <typename... Args>
+      void operator()(state_v& state, guard_v& guard, Args&&... args) {
+        using state_t = typename T::source_t;
+        using event_t = typename T::event_t;
+        using guard_t = typename T::guard_t;
+        using target_t = typename T::target_t;
+        using action_t = typename T::action_t;
+
+        __details::visitor<guard_t> vis;
+        if (std::is_same_v<State, state_t> && std::is_same_v<Event, event_t> &&
+            std::visit(vis(), guard)) {
+          state = target_t {};
+          __details::invoke_if(action_t {}, std::forward<Args>(args)...);
+        } else
+          event_impl<State, Event, tp::type_pack<Ts...>, Idx + 1> {}(
+              state, guard, std::forward<Args>(args)...);
+      }
+    };
 
   public:
-    state_machine() : m_state(tp::at_t<0, typename Table::sources> {}) {}
+    state_machine()
+        : m_state(tp::at_t<0, typename Table::sources> {}), m_guard(none {}) {}
 
     template <typename Event, typename... Args>
     void event(Args&&... args) {
-      map_t& ref_map = m_map;
+      state_v& ref_state = m_state;
+      guard_v& ref_guard = m_guard;
       auto l = [&](const auto& arg) {
         using event_t = Event;
         using state_t = std::decay_t<decltype(arg)>;
-        using data = decltype(ref_map.template get<state_t, event_t>());
-        event_impl<data>(std::forward<Args>(args)...);
+        event_impl<state_t, event_t, transition_pack, 0> {}(
+            ref_state, ref_guard, std::forward<Args>(args)...);
       };
       std::visit(l, m_state);
     }
@@ -190,10 +160,14 @@ namespace pure {
     void action(Args&&... args) {
       auto l = [&](const auto& arg) {
         using state_t = std::decay_t<decltype(arg)>;
-        if constexpr (std::is_invocable<state_t, Args...>::value)
-          std::invoke(state_t {}, std::forward<Args>(args)...);
+        __details::invoke_if(state_t {}, std::forward<Args>(args)...);
       };
       std::visit(l, m_state);
+    }
+
+    template <class T>
+    inline void guard() {
+      m_guard = T {};
     }
   };
 
