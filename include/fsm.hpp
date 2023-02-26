@@ -15,10 +15,10 @@ void static_check() {
 
 namespace pure {
 
-  template <class Gd1, class Gd2>
-  struct match;
-
   struct none {};
+
+  template <class Gd, class Target>
+  struct match;
 
   namespace __details {
 
@@ -189,6 +189,62 @@ namespace pure {
       m_guard = T {};
     }
   };
+
+  enum class guard_class { noneof, anyof };
+
+  template <class Guard, class... Guards>
+  struct guard_any_of {
+    static constexpr guard_class type = guard_class::anyof;
+    using guard_pack = tp::type_pack<Guard, Guards...>;
+  };
+
+  template <class Guard, class... Guards>
+  struct guard_none_of {
+    static constexpr guard_class type = guard_class::noneof;
+    using guard_pack = tp::type_pack<Guard, Guards...>;
+  };
+
+  template <class... Guards>
+  using any_of = guard_any_of<Guards...>;
+
+  template <class... Guards>
+  using none_of = guard_none_of<Guards...>;
+
+  namespace __details {
+
+    template <class Guard, class Target, typename AlwaysVoid>
+    struct match_impl {
+      static const bool value = false;
+    };
+
+    template <class Guard, class Target>
+    struct match_impl<Guard, Target,
+                      std::enable_if_t<std::is_same_v<Guard, Target>>> {
+      static constexpr bool value = true;
+    };
+
+    template <class Guard, class Target>
+    struct match_impl<
+        Guard, Target,
+        std::enable_if_t<
+            Target::type == guard_class::anyof &&
+            tp::contains<Guard, typename Target::guard_pack>::value>> {
+      static constexpr bool value = true;
+    };
+
+    template <class Guard, class Target>
+    struct match_impl<
+        Guard, Target,
+        std::enable_if_t<
+            Target::type == guard_class::noneof &&
+            !tp::contains<Guard, typename Target::guard_pack>::value>> {
+      static constexpr bool value = true;
+    };
+
+  } // namespace __details
+
+  template <class Gd, class Target>
+  struct match : __details::match_impl<Gd, Target, void> {};
 
 } // namespace pure
 
