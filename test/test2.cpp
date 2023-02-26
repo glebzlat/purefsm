@@ -1,5 +1,7 @@
+#include <logger.hpp>
 #include <cassert>
 #include <fsm.hpp>
+#include <iostream>
 
 enum test { a, b, c };
 
@@ -31,7 +33,7 @@ int main() {
   using pure::none;
   using table = pure::transition_table<tr<A, evA, B, ActionA, GuardA>,
                                        tr<B, evB, A, ActionB, GuardB>>;
-  pure::state_machine<table> machine;
+  pure::state_machine<table, pure::stdout_logger<std::cout>> machine;
 
   assert(t == test::c);
 
