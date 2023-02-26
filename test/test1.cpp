@@ -1,6 +1,8 @@
 #include <cassert>
 #include <cstdio>
 #include <fsm.hpp>
+#include <logger.hpp>
+#include <iostream>
 
 enum test { a, b };
 
@@ -18,13 +20,13 @@ struct evA {};
 
 struct evB {};
 
-struct None {};
-
 int main() {
   using pure::tr;
-  using table = pure::transition_table<tr<A, evA, B, None, None>,
-                                       tr<B, evB, A, None, None>>;
-  pure::state_machine<table> machine;
+  using pure::none;
+  using table = pure::transition_table<tr<A, evA, B, none, none>,
+                                       tr<B, evB, A, none, none>>;
+  using logger = pure::stdout_logger<std::cout>;
+  pure::state_machine<table, logger> machine;
 
   assert(t == test::a);
 
