@@ -115,6 +115,13 @@ namespace pure {
         };
       }
     };
+
+    template <class T, class Pack>
+    constexpr bool static_check_contains() {
+      constexpr bool contains = tp::contains<T, Pack>::value;
+      static_assert(contains);
+      return contains;
+    }
   } // namespace __details
 
   class empty_logger {
@@ -132,6 +139,7 @@ namespace pure {
     using event_v = typename Table::event_v;
     using guard_v = typename Table::guard_v;
     using transition_pack = typename Table::transitions;
+    using guard_collection = typename Table::guard_collection;
 
     static constexpr std::size_t m_tr_count = transition_pack::size();
 
@@ -210,8 +218,10 @@ namespace pure {
 
     template <class T>
     inline void guard() {
-      logger.template write<T>("New guard: ");
-      m_guard = T {};
+      if constexpr (__details::static_check_contains<T, guard_collection>()) {
+        logger.template write<T>("New guard: ");
+        m_guard = T {};
+      }
     }
   };
 
