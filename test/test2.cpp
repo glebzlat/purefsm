@@ -1,6 +1,6 @@
-#include <logger.hpp>
+#include <pure/logger.hpp>
 #include <cassert>
-#include <fsm.hpp>
+#include <pure/fsm.hpp>
 #include <iostream>
 
 enum test { a, b, c };

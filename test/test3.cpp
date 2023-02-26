@@ -1,7 +1,7 @@
 #include <cassert>
-#include <fsm.hpp>
+#include <pure/fsm.hpp>
 #include <iostream>
-#include <logger.hpp>
+#include <pure/logger.hpp>
 
 enum test { a, b, c };
 
