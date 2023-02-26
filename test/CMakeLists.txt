@@ -15,6 +15,7 @@ endmacro()
 
 add_test_exec(SmokeTest test1.cpp)
 add_test_exec(GuardTest test2.cpp)
+add_test_exec(GuardAnyOfTest test3.cpp)
 
 add_custom_target(MakeTest ALL
     ctest --output-on-failure --test-timeout 10
