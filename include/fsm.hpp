@@ -17,10 +17,10 @@ namespace pure {
 
   struct none {};
 
-  template <class Gd, class Target>
-  struct match;
-
   namespace __details {
+
+    template <class Gd, class Target>
+    struct match;
 
     template <typename T>
     struct unpack {};
@@ -86,7 +86,7 @@ namespace pure {
       inline auto operator()() {
         return [&](const auto& arg) -> bool {
           using arg_t = std::decay_t<decltype(arg)>;
-          return std::is_same_v<arg_t, T>;
+          return match<arg_t, T>::value;
         };
       }
     };
@@ -241,10 +241,10 @@ namespace pure {
       static constexpr bool value = true;
     };
 
-  } // namespace __details
+    template <class Gd, class Target>
+    struct match : __details::match_impl<Gd, Target, void> {};
 
-  template <class Gd, class Target>
-  struct match : __details::match_impl<Gd, Target, void> {};
+  } // namespace __details
 
 } // namespace pure
 
