@@ -8,11 +8,6 @@
 #include <utility>
 #include <variant>
 
-template <typename T, bool False>
-void static_check() {
-  static_assert(False);
-}
-
 namespace pure {
 
   struct none {};
@@ -22,12 +17,41 @@ namespace pure {
     template <class Gd, class Target>
     struct match;
 
+    template <class Guard>
+    struct is_logical_guard;
+
     template <typename T>
     struct unpack {};
 
     template <typename T, typename... Ts>
     struct unpack<tp::type_pack<T, Ts...>> {
       using type = std::variant<T, Ts...>;
+    };
+
+    template <class GuardPack>
+    struct unpack_guards {};
+
+    template <class Guard, typename AlwaysVoid>
+    struct unpack_guard {
+      using type = tp::just_type<Guard>;
+    };
+
+    template <class Guard>
+    struct unpack_guard<Guard,
+                        std::enable_if_t<is_logical_guard<Guard>::value>> {
+      using type = typename Guard::pack;
+    };
+
+    template <typename T, typename... Ts>
+    struct unpack_guards<tp::type_pack<T, Ts...>> {
+      using pack = typename unpack_guard<T, void>::type;
+      using next = typename unpack_guards<tp::type_pack<Ts...>>::type;
+      using type = tp::concatenate_t<pack, next>;
+    };
+
+    template <>
+    struct unpack_guards<tp::empty_pack> {
+      using type = tp::empty_pack;
     };
 
   } // namespace __details
@@ -52,8 +76,9 @@ namespace pure {
     using sources = tp::type_pack<typename Ts::source_t...>;
     using events = tp::type_pack<typename Ts::event_t...>;
     using targets = tp::type_pack<typename Ts::target_t...>;
-    using guards = tp::concatenate_t<tp::type_pack<typename Ts::guard_t...>,
-                                     tp::just_type<none>>;
+    using guards_raw = tp::concatenate_t<tp::type_pack<typename Ts::guard_t...>,
+                                         tp::just_type<none>>;
+    using guards = typename __details::unpack_guards<guards_raw>::type;
 
     using states = tp::concatenate_t<sources, targets>;
 
@@ -192,16 +217,20 @@ namespace pure {
 
   enum class guard_class { noneof, anyof };
 
+  struct logic_guard_base {};
+
   template <class Guard, class... Guards>
-  struct guard_any_of {
+  struct guard_any_of : logic_guard_base {
     static constexpr guard_class type = guard_class::anyof;
     using guard_pack = tp::type_pack<Guard, Guards...>;
+    using pack = guard_pack;
   };
 
   template <class Guard, class... Guards>
-  struct guard_none_of {
+  struct guard_none_of : logic_guard_base {
     static constexpr guard_class type = guard_class::noneof;
     using guard_pack = tp::type_pack<Guard, Guards...>;
+    using pack = guard_pack;
   };
 
   template <class... Guards>
@@ -243,6 +272,11 @@ namespace pure {
 
     template <class Gd, class Target>
     struct match : __details::match_impl<Gd, Target, void> {};
+
+    template <class Guard>
+    struct is_logical_guard {
+      static constexpr bool value = std::is_base_of_v<logic_guard_base, Guard>;
+    };
 
   } // namespace __details
 
