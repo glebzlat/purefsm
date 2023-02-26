@@ -14,6 +14,7 @@ macro(add_test_exec TEST_NAME)
 endmacro()
 
 add_test_exec(SmokeTest test1.cpp)
+add_test_exec(GuardTest test2.cpp)
 
 add_custom_target(MakeTest ALL
     ctest --output-on-failure --test-timeout 10
