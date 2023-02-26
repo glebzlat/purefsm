@@ -32,11 +32,9 @@ namespace pure {
 
   } // namespace __details
 
-  struct transition_base {};
-
   template <class Source, class Event, class Target, class Action,
             class Guard = none>
-  struct transition : transition_base {
+  struct transition {
     using source_t = Source;
     using event_t = Event;
     using target_t = Target;
@@ -156,7 +154,7 @@ namespace pure {
     state_machine()
         : m_state(tp::at_t<0, typename Table::sources> {}), m_guard(none {}) {}
 
-    state_machine(Logger custom_logger)
+    state_machine(logger_t custom_logger)
         : m_state(tp::at_t<0, typename Table::sources> {}), m_guard(none {}),
           logger(custom_logger) {}
 
