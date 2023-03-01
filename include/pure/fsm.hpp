@@ -29,30 +29,7 @@ namespace pure {
     };
 
     template <class GuardPack>
-    struct unpack_guards {};
-
-    template <class Guard, typename AlwaysVoid>
-    struct unpack_guard {
-      using type = tp::just_type<Guard>;
-    };
-
-    template <class Guard>
-    struct unpack_guard<Guard,
-                        std::enable_if_t<is_logical_guard<Guard>::value>> {
-      using type = typename Guard::pack;
-    };
-
-    template <typename T, typename... Ts>
-    struct unpack_guards<tp::type_pack<T, Ts...>> {
-      using pack = typename unpack_guard<T, void>::type;
-      using next = typename unpack_guards<tp::type_pack<Ts...>>::type;
-      using type = tp::concatenate_t<pack, next>;
-    };
-
-    template <>
-    struct unpack_guards<tp::empty_pack> {
-      using type = tp::empty_pack;
-    };
+    struct unpack_guards;
 
   } // namespace __details
 
@@ -286,6 +263,32 @@ namespace pure {
     template <class Guard>
     struct is_logical_guard {
       static constexpr bool value = std::is_base_of_v<logic_guard_base, Guard>;
+    };
+
+    template <class GuardPack>
+    struct unpack_guards {};
+
+    template <class Guard, typename AlwaysVoid>
+    struct unpack_guard {
+      using type = tp::just_type<Guard>;
+    };
+
+    template <class Guard>
+    struct unpack_guard<Guard,
+                        std::enable_if_t<is_logical_guard<Guard>::value>> {
+      using type = typename Guard::pack;
+    };
+
+    template <typename T, typename... Ts>
+    struct unpack_guards<tp::type_pack<T, Ts...>> {
+      using pack = typename unpack_guard<T, void>::type;
+      using next = typename unpack_guards<tp::type_pack<Ts...>>::type;
+      using type = tp::concatenate_t<pack, next>;
+    };
+
+    template <>
+    struct unpack_guards<tp::empty_pack> {
+      using type = tp::empty_pack;
     };
 
   } // namespace __details
