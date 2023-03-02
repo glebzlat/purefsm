@@ -8,7 +8,9 @@ set(TEST_DEPENDENCY PureFSM)
 
 macro(add_test_exec TEST_NAME)
     add_executable(${TEST_NAME} EXCLUDE_FROM_ALL ${ARGN})
-    target_link_libraries(${TEST_NAME} PRIVATE ${TEST_DEPENDENCY})
+    target_link_libraries(${TEST_NAME} PRIVATE 
+        ${TEST_DEPENDENCY} 
+        Catch2::Catch2)
     list(APPEND TEST_LIST ${TEST_NAME})
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endmacro()
