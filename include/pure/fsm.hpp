@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <functional>
 
-// seems it is a bug, and I actually can't fix it by another way
+// TODO: fix type_pack.hpp include
 // #include <type_pack.hpp>
 #include "../../lib/type_pack/include/type_pack.hpp"
 
@@ -123,9 +123,7 @@ namespace pure {
     using logger_t = Logger;
     logger_t logger;
 
-    /*************************************************************************
-     * Private methods
-     ************************************************************************/
+    /* Private methods */
 
     template <class FSMLogger, class F, typename... Args>
     static void invoke(FSMLogger& logger, F&& f, Args&&... args) noexcept(
@@ -208,6 +206,8 @@ namespace pure {
     }
   };
 
+  /* guard definitions */
+
   enum class guard_class { noneof, anyof };
 
   struct logic_guard_base {};
@@ -263,6 +263,15 @@ namespace pure {
       static constexpr bool value = true;
     };
 
+    /*
+     * match checks if the guard Guard matches with guard Target.
+     * Provides constant member, which is true in the following cases:
+     * if Guard == Target
+     * if Target == any_of and Guard is appeared in its guard pack
+     * if Target == none_of and Guard is not appeared in its guard pack
+     *
+     * Otherwise the value of member is false.
+     */
     template <class Gd, class Target>
     struct match : __details::match_impl<Gd, Target, void> {};
 
@@ -270,9 +279,6 @@ namespace pure {
     struct is_logical_guard {
       static constexpr bool value = std::is_base_of_v<logic_guard_base, Guard>;
     };
-
-    template <class GuardPack>
-    struct unpack_guards {};
 
     template <class Guard, typename AlwaysVoid>
     struct unpack_guard {
@@ -284,6 +290,9 @@ namespace pure {
                         std::enable_if_t<is_logical_guard<Guard>::value>> {
       using type = typename Guard::pack;
     };
+
+    template <class GuardPack>
+    struct unpack_guards {};
 
     template <typename T, typename... Ts>
     struct unpack_guards<tp::type_pack<T, Ts...>> {
