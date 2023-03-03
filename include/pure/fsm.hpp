@@ -16,6 +16,19 @@ namespace pure {
 
   struct none {};
 
+  template <class Source, class Event, class Target, class Action,
+            class Guard = none>
+  struct transition {
+    using source_t = Source;
+    using event_t = Event;
+    using target_t = Target;
+    using action_t = Action;
+    using guard_t = Guard;
+  };
+
+  template <class Source, class Event, class Target, class Action, class Guard>
+  using tr = transition<Source, Event, Target, Action, Guard>;
+
   namespace __details {
 
     template <class Gd, class Target>
@@ -32,23 +45,33 @@ namespace pure {
       using type = std::variant<T, Ts...>;
     };
 
+    template <class Guard>
+    struct unpack_guard;
+
     template <class GuardPack>
     struct unpack_guards;
 
+    template <class Source, class Event, class GuardPack>
+    struct tr_cond {};
+
+    template <class TrPack>
+    struct unpack_trs {
+      using type = tp::empty_pack;
+    };
+
+    template <class Tr, class... Trs>
+    struct unpack_trs<tp::type_pack<Tr, Trs...>> {
+      using source_t = typename Tr::source_t;
+      using event_t = typename Tr::event_t;
+      using guard_raw = typename Tr::guard_t;
+      using guard_t = typename unpack_guard<guard_raw>::type;
+      using tr_t = tr_cond<source_t, event_t, guard_t>;
+
+      using type =
+          tp::concatenate<tp::just_type<tr_t>,
+                          typename unpack_trs<tp::type_pack<Trs...>>::type>;
+    };
   } // namespace __details
-
-  template <class Source, class Event, class Target, class Action,
-            class Guard = none>
-  struct transition {
-    using source_t = Source;
-    using event_t = Event;
-    using target_t = Target;
-    using action_t = Action;
-    using guard_t = Guard;
-  };
-
-  template <class Source, class Event, class Target, class Action, class Guard>
-  using tr = transition<Source, Event, Target, Action, Guard>;
 
   template <typename... Ts>
   struct transition_table {
@@ -72,9 +95,10 @@ namespace pure {
     using guard_v = typename __details::unpack<guard_collection>::type;
 
   private:
-    using test_t = tp::unique_t<transitions>;
+    using tr_conds = typename __details::unpack_trs<transitions>::type;
+    using test_t = tp::unique_t<tr_conds>;
 
-    static_assert(std::is_same<test_t, transitions>::value,
+    static_assert(std::is_same<test_t, tr_conds>::value,
                   "Duplicated transitions");
   };
 
@@ -281,22 +305,25 @@ namespace pure {
     };
 
     template <class Guard, typename AlwaysVoid>
-    struct unpack_guard {
+    struct unpack_guard_impl {
       using type = tp::just_type<Guard>;
     };
 
     template <class Guard>
-    struct unpack_guard<Guard,
-                        std::enable_if_t<is_logical_guard<Guard>::value>> {
+    struct unpack_guard_impl<Guard,
+                             std::enable_if_t<is_logical_guard<Guard>::value>> {
       using type = typename Guard::pack;
     };
+
+    template <class Guard>
+    struct unpack_guard : unpack_guard_impl<Guard, void> {};
 
     template <class GuardPack>
     struct unpack_guards {};
 
     template <typename T, typename... Ts>
     struct unpack_guards<tp::type_pack<T, Ts...>> {
-      using pack = typename unpack_guard<T, void>::type;
+      using pack = typename unpack_guard<T>::type;
       using next = typename unpack_guards<tp::type_pack<Ts...>>::type;
       using type = tp::concatenate_t<pack, next>;
     };
