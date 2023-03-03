@@ -80,13 +80,6 @@ namespace pure {
 
   namespace __details {
 
-    template <class F, typename... Args>
-    auto invoke_if(F&& f, Args&&... args) noexcept(
-        std::is_nothrow_invocable_v<F, Args...>) {
-      if constexpr (std::is_invocable<F, Args...>::value)
-        return std::invoke(f, std::forward<Args>(args)...);
-    }
-
     template <class T>
     struct visitor {
       inline auto operator()() {
@@ -134,6 +127,15 @@ namespace pure {
      * Private methods
      ************************************************************************/
 
+    template <class FSMLogger, class F, typename... Args>
+    static void invoke(FSMLogger& logger, F&& f, Args&&... args) noexcept(
+        std::is_nothrow_invocable_v<F, Args...>) {
+      if constexpr (std::is_invocable<F, Args...>::value) {
+        logger.write("Calling an action...");
+        std::invoke(f, std::forward<Args>(args)...);
+      }
+    }
+
     template <class State, class Event, class Pack, std::size_t Idx>
     struct event_impl {
       template <typename... Args>
@@ -157,7 +159,7 @@ namespace pure {
             std::visit(vis(), guard)) {
           log.template write<target_t>("Change state to ");
           state = target_t {};
-          __details::invoke_if(action_t {}, std::forward<Args>(args)...);
+          invoke(log, action_t {}, std::forward<Args>(args)...);
         } else
           event_impl<State, Event, tp::type_pack<Ts...>, Idx + 1> {}(
               state, guard, log, std::forward<Args>(args)...);
@@ -191,8 +193,8 @@ namespace pure {
       logger_t& ref_log = logger;
       auto l = [&](const auto& arg) {
         using state_t = std::decay_t<decltype(arg)>;
-        ref_log.template write<state_t>("State action call: ");
-        __details::invoke_if(state_t {}, std::forward<Args>(args)...);
+        ref_log.template write<state_t>("Attempt to call an action for: ");
+        invoke(ref_log, state_t {}, std::forward<Args>(args)...);
       };
       std::visit(l, m_state);
     }
