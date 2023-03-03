@@ -1,59 +1,85 @@
-#include <pure/logger.hpp>
-#include <cassert>
-#include <pure/fsm.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <iostream>
+#include <pure/fsm.hpp>
+#include <pure/logger.hpp>
 
-enum test { a, b, c };
+enum class current_state { None, A, B, C };
 
-test t = test::c;
-
-struct A {};
-
-struct B {};
-
-struct ActionA {
-  void operator()() { t = test::a; }
+struct StateA {
+  void operator()(current_state& state) { state = current_state::A; }
 };
 
-struct ActionB {
-  void operator()() { t = test::b; }
+struct StateB {
+  void operator()(current_state& state) { state = current_state::B; }
 };
 
-struct evA {};
+struct StateC {
+  void operator()(current_state& state) { state = current_state::C; }
+};
 
-struct evB {};
+struct EventAB {};
 
-struct GuardA {};
+struct EventAC {};
 
-struct GuardB {};
+struct GuardAB {};
 
+struct GuardAC {};
 
-int main() {
-  using pure::tr;
+TEST_CASE("Guard test") {
+  current_state state = current_state::None;
+
   using pure::none;
-  using table = pure::transition_table<tr<A, evA, B, ActionA, GuardA>,
-                                       tr<B, evB, A, ActionB, GuardB>>;
-  pure::state_machine<table, pure::stdout_logger<std::cout>> machine;
+  using pure::tr;
 
-  assert(t == test::c);
+  using table =
+      pure::transition_table<tr<StateA, EventAB, StateB, none, GuardAB>,
+                             tr<StateA, EventAC, StateC, none, GuardAC>>;
+  using logger = pure::stdout_logger<std::cout>;
+  pure::state_machine<table, logger> machine;
 
-  machine.event<evA>(); // current guard is `none`, so state does not changed
+  machine.action(state);
 
-  assert(t == test::c);
+  REQUIRE(state == current_state::A);
 
-  machine.guard<GuardA>();
-  machine.event<evA>(); // guard is `GuardA`, so state changed to B
+  SECTION("Attempt to move to State B") {
+    machine.event<EventAB>();
+    machine.action(state);
 
-  assert(t == test::a);
+    REQUIRE(state == current_state::A);
 
-  machine.event<evB>(); // current guard is `GuardA`
+    machine.guard<GuardAC>();
+    machine.event<EventAB>();
+    machine.action(state);
 
-  assert(t == test::a);
+    REQUIRE(state == current_state::A);
+  }
 
-  machine.guard<GuardB>();
-  machine.event<evB>(); // now the current state is A
+  SECTION("Moving to State B") {
+    machine.guard<GuardAB>();
+    machine.event<EventAB>();
+    machine.action(state);
 
-  assert(t == test::b);
+    REQUIRE(state == current_state::B);
+  }
 
-  return 0;
+  SECTION("Attempt to move to State C") {
+    machine.event<EventAC>();
+    machine.action(state);
+
+    REQUIRE(state == current_state::A);
+
+    machine.guard<GuardAB>();
+    machine.event<EventAC>();
+    machine.action(state);
+
+    REQUIRE(state == current_state::A);
+  }
+
+  SECTION("Moving to State C") {
+    machine.guard<GuardAC>();
+    machine.event<EventAC>();
+    machine.action(state);
+
+    REQUIRE(state == current_state::C);
+  }
 }

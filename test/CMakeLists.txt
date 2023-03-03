@@ -10,7 +10,7 @@ macro(add_test_exec TEST_NAME)
     add_executable(${TEST_NAME} EXCLUDE_FROM_ALL ${ARGN})
     target_link_libraries(${TEST_NAME} PRIVATE 
         ${TEST_DEPENDENCY} 
-        Catch2::Catch2)
+        Catch2::Catch2WithMain)
     list(APPEND TEST_LIST ${TEST_NAME})
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endmacro()
@@ -18,6 +18,7 @@ endmacro()
 add_test_exec(SmokeTest test1.cpp)
 add_test_exec(GuardTest test2.cpp)
 add_test_exec(GuardAnyOfTest test3.cpp)
+add_test_exec(OnEventAction test_on_event_action.cpp)
 
 add_custom_target(MakeTest ALL
     ctest --output-on-failure --test-timeout 10

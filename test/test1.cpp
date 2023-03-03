@@ -1,49 +1,52 @@
-#include <cassert>
-#include <cstdio>
+#include <catch2/catch_test_macros.hpp>
+#include <iostream>
 #include <pure/fsm.hpp>
 #include <pure/logger.hpp>
-#include <iostream>
 
-enum test { a, b };
+enum class current_state { None, A, B, C };
 
-test t;
-
-struct A {
-  void operator()() { t = test::a; }
+struct StateA {
+  void operator()(current_state& state) { state = current_state::A; }
 };
 
-struct B {
-  void operator()() { t = test::b; }
+struct StateB {
+  void operator()(current_state& state) { state = current_state::B; }
 };
 
-struct evA {};
+struct StateC {
+  void operator()(current_state& state) { state = current_state::C; }
+};
 
-struct evB {};
+struct EventAB {};
 
-int main() {
-  using pure::tr;
+struct EventAC {};
+
+TEST_CASE("Simple test with three states") {
+  current_state state = current_state::None;
+
   using pure::none;
-  using table = pure::transition_table<tr<A, evA, B, none, none>,
-                                       tr<B, evB, A, none, none>>;
+  using pure::tr;
+
+  using table = pure::transition_table<tr<StateA, EventAB, StateB, none, none>,
+                                       tr<StateA, EventAC, StateC, none, none>>;
   using logger = pure::stdout_logger<std::cout>;
   pure::state_machine<table, logger> machine;
 
-  assert(t == test::a);
+  machine.action(state);
 
-  machine.event<evA>();
-  machine.action();
+  REQUIRE(state == current_state::A);
 
-  assert(t == test::b);
+  SECTION("Moving to State B") {
+    machine.event<EventAB>();
+    machine.action(state);
 
-  machine.event<evB>();
-  machine.action();
+    REQUIRE(state == current_state::B);
+  }
 
-  assert(t == test::a);
+  SECTION("Moving to State C") {
+    machine.event<EventAC>();
+    machine.action(state);
 
-  machine.event<evB>();
-  machine.action();
-
-  assert(t == test::a);
-
-  return 0;
+    REQUIRE(state == current_state::C);
+  }
 }
