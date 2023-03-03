@@ -3,7 +3,11 @@
 
 #include <cstddef>
 #include <functional>
-#include <type_pack.hpp>
+
+// seems it is a bug, and I actually can't fix it by another way
+// #include <type_pack.hpp>
+#include "../../lib/type_pack/include/type_pack.hpp"
+
 #include <type_traits>
 #include <utility>
 #include <variant>
