@@ -45,9 +45,6 @@ namespace pure {
       using type = std::variant<T, Ts...>;
     };
 
-    template <class Guard>
-    struct unpack_guard;
-
     template <class GuardPack>
     struct unpack_guards;
 
@@ -63,12 +60,11 @@ namespace pure {
     struct unpack_trs<tp::type_pack<Tr, Trs...>> {
       using source_t = typename Tr::source_t;
       using event_t = typename Tr::event_t;
-      using guard_raw = typename Tr::guard_t;
-      using guard_t = typename unpack_guard<guard_raw>::type;
+      using guard_t = typename Tr::guard_t;
       using tr_t = tr_cond<source_t, event_t, guard_t>;
 
       using type =
-          tp::concatenate<tp::just_type<tr_t>,
+          tp::concatenate_t<tp::just_type<tr_t>,
                           typename unpack_trs<tp::type_pack<Trs...>>::type>;
     };
   } // namespace __details
@@ -98,7 +94,7 @@ namespace pure {
     using tr_conds = typename __details::unpack_trs<transitions>::type;
     using test_t = tp::unique_t<tr_conds>;
 
-    static_assert(std::is_same<test_t, tr_conds>::value,
+    static_assert(tp::is_equal<tr_conds, test_t>::value,
                   "Duplicated transitions");
   };
 
