@@ -17,7 +17,7 @@ endmacro()
 
 add_test_exec(SmokeTest test1.cpp)
 add_test_exec(GuardTest test2.cpp)
-add_test_exec(GuardAnyOfTest test3.cpp)
+add_test_exec(LogicGuards test_logic_guards.cpp)
 add_test_exec(OnEventAction test_on_event_action.cpp)
 
 add_custom_target(MakeTest ALL
