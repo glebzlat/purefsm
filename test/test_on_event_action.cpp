@@ -29,8 +29,9 @@ TEST_CASE("On event actions") {
   using pure::none;
   using pure::tr;
 
-  using table = pure::transition_table<tr<StateA, EventAB, StateB, none, none>,
-                                       tr<StateA, EventAC, StateC, none, none>>;
+  using table =
+      pure::transition_table<tr<StateA, EventAB, StateB, ActionAB, none>,
+                             tr<StateA, EventAC, StateC, ActionAC, none>>;
   using logger = pure::stdout_logger<std::cout>;
   pure::state_machine<table, logger> machine;
 
