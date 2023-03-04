@@ -8,15 +8,15 @@ set(TEST_DEPENDENCY PureFSM)
 
 macro(add_test_exec TEST_NAME)
     add_executable(${TEST_NAME} EXCLUDE_FROM_ALL ${ARGN})
-    target_link_libraries(${TEST_NAME} PRIVATE 
-        ${TEST_DEPENDENCY} 
+    target_link_libraries(${TEST_NAME} PRIVATE
+        ${TEST_DEPENDENCY}
         Catch2::Catch2WithMain)
     list(APPEND TEST_LIST ${TEST_NAME})
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endmacro()
 
-add_test_exec(SmokeTest test1.cpp)
-add_test_exec(GuardTest test2.cpp)
+add_test_exec(SmokeTest smoke_test.cpp)
+add_test_exec(GuardTest guard_test.cpp)
 add_test_exec(LogicGuards test_logic_guards.cpp)
 add_test_exec(OnEventAction test_on_event_action.cpp)
 
