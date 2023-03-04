@@ -32,5 +32,5 @@ if (PUREFSM_TESTING)
 endif()
 
 if (PUREFSM_DOC)
-    add_subdirectory(examples)
+    add_subdirectory(doc)
 endif()
