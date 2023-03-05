@@ -813,6 +813,7 @@ dl.reflist dd {
 .retval,
 .exception,
 .tparams {
+  overflow-x: auto;
   margin-left: 0px;
   padding-left: 0px;
 }
@@ -1244,7 +1245,6 @@ dl {
   display: block;
   width: 100%;
   line-break: auto;
-  white-space: break-spaces;
 }
 
 /* dl.note, dl.warning, dl.attention, dl.pre, dl.post, dl.invariant, dl.deprecated, dl.todo, dl.test, dl.bug, dl.examples */
