@@ -1,11 +1,51 @@
+/**
+ * @file logger.hpp
+ *
+ * File logger.hpp provides logger types and utilities for PureFSM.
+ */
 #ifndef PUREFSM_LOGGER_HPP
 #define PUREFSM_LOGGER_HPP
 
 #include <ostream>
 
+/**
+ * @page fsm_logger State Machine Logger
+ *
+ * A State Machine Logger is required to define two methods:
+ *
+ * Template method `write`, that allows to inspect types
+ * ```cpp
+ * template <typename T>
+ * void write(const char*);
+ * ```
+ *
+ * And non-template method `write`, that allows to just send log messages
+ * ```cpp
+ * void write(const char*);
+ * ```
+ *
+ * Template `write` method supposed to use compile-time reflection.
+ * The possible log message may be `"${str}: ${type}"`.
+ */
+
 namespace pure {
 
+  /**
+   * @brief Logger utilities namespace
+   *
+   * See @ref fsm_logger
+   */
   namespace logger {
+
+    /**
+     * @fn type_name
+     *
+     * @tparam T type
+     *
+     * @brief Compile-time reflection
+     *
+     * Returns a string that is a name of a type T. Compiler dependent.
+     */
 
 #if defined(__GNUC__) || defined(__MINGW32__) || defined(__clang__) ||         \
     defined(__INTEL_COMPILER) || (defined(__ICC) && (__ICC >= 600)) ||         \
@@ -49,6 +89,15 @@ namespace pure {
 
   } // namespace logger
 
+  /**
+   * @brief State machine stdout logger
+   *
+   * @tparam stream to write log messages
+   *
+   * Stream may be `std::cout`, `std::cerr` and `std::clog`.
+   *
+   * See @ref fsm_logger
+   */
   template <std::ostream& stream>
   class stdout_logger {
   public:
@@ -62,13 +111,34 @@ namespace pure {
     inline void write(const char* str) { stream << str << std::endl; }
   };
 
+  /**
+   * @brief State machine logger with user-defined stream
+   *
+   * In case if logs needs to be written to a file, and there is no possibility
+   * to redirect program standard or error stream, user can apply this logger.
+   *
+   * See @ref fsm_logger
+   */
   class user_logger {
   private:
     std::ostream& stream;
   public:
     user_logger() = delete;
 
+    /**
+     * @brief Constructs user_logger with a stream given
+     */
     user_logger(std::ostream& stream) : stream(stream) {}
+
+    /**
+     * @brief Constructs user_logger from a reference to another user_logger
+     */
+    user_logger(user_logger const& other) : stream(other.stream) {}
+
+    /**
+     * @brief Constructs user_logger from another user_logger
+     */
+    user_logger(user_logger&& other) : stream(other.stream) {}
 
     template <typename T>
     inline void write(const char* str) {

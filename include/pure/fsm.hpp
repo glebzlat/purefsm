@@ -1,21 +1,47 @@
+/**
+ * @file fsm.hpp
+ *
+ * File that contains a Finite State Machine.
+ */
 #ifndef PURE_FSM
 #define PURE_FSM
 
 #include <cstddef>
 #include <functional>
 
-// TODO: fix type_pack.hpp include
-// #include <type_pack.hpp>
+/**
+ * @bug Clangd can't find `<type_pack.hpp>` header, but can find it by
+ * specifying its relative path: `"../../lib/type_pack/include/type_pack.hpp"`.
+ * However, clang++ compiles it well.
+ */
 #include "../../lib/type_pack/include/type_pack.hpp"
 
 #include <type_traits>
 #include <utility>
 #include <variant>
 
+/**
+ * @brief PureFSM library namespace
+ */
 namespace pure {
 
+  /**
+   * @brief Struct that defines empty type
+   *
+   * none can be used as an transition action, if there is no action, as a
+   * guard or as an event.
+   */
   struct none {};
 
+  /**
+   * @brief Represents a transition between two states
+   *
+   * Just a metaprogramming container of types. Transition contains a source
+   * state, a target state, an event, which causes state change from source to
+   * target and a guard, which determines, is state changing allowed. Also
+   * transition contains an action, that is will be performed when this
+   * transition is happened.
+   */
   template <class Source, class Event, class Target, class Action,
             class Guard = none>
   struct transition {
@@ -26,6 +52,11 @@ namespace pure {
     using guard_t = Guard;
   };
 
+  /**
+   * @brief Typedef to transition
+   *
+   * Just for less typing.
+   */
   template <class Source, class Event, class Target, class Action, class Guard>
   using tr = transition<Source, Event, Target, Action, Guard>;
 
@@ -65,10 +96,17 @@ namespace pure {
 
       using type =
           tp::concatenate_t<tp::just_type<tr_t>,
-                          typename unpack_trs<tp::type_pack<Trs...>>::type>;
+                            typename unpack_trs<tp::type_pack<Trs...>>::type>;
     };
   } // namespace __details
 
+  /**
+   * @brief Determines the behaviour of an FSM
+   *
+   * Transition table contains transitions between State Machine states.
+   * The first state in the first transition (first column) of a table will be
+   * chosen as a beginning state.
+   */
   template <typename... Ts>
   struct transition_table {
     using transitions = tp::type_pack<Ts...>;
@@ -118,14 +156,35 @@ namespace pure {
     }
   } // namespace __details
 
+  /**
+   * @brief Empty logger
+   *
+   * Dummy logger, that is specified as a State Machine logger by default.
+   * If you want to write your own logger, you must to define the same
+   * interface.
+   *
+   * See @ref fsm_logger
+   */
   class empty_logger {
   public:
+    /**
+     * @brief Log message, that inspects a type T.
+     */
     template <typename T>
     inline void write(const char*) noexcept {}
 
+    /**
+     * @brief Log message
+     */
     inline void write(const char*) noexcept {}
   };
 
+  /**
+   * @brief State Machine
+   *
+   * @tparam Table transition_table
+   * @tparam Logger type that provides a logger interface
+   */
   template <class Table, class Logger = empty_logger>
   class state_machine {
   private:
@@ -188,10 +247,30 @@ namespace pure {
     state_machine()
         : m_state(tp::at_t<0, typename Table::sources> {}), m_guard(none {}) {}
 
+    /**
+     * @brief Constructor that allows to initialize a logger
+     *
+     * If the user-defined logger needs some internal data initialization,
+     * user can define a template type of State Machine as a reference to a
+     * logger and pass a logger by reference; or pass it by value.
+     */
     state_machine(logger_t custom_logger)
         : m_state(tp::at_t<0, typename Table::sources> {}), m_guard(none {}),
           logger(custom_logger) {}
 
+    /**
+     * @brief Pass an event to a State Machine
+     *
+     * @tparam Event event
+     * @tparam Args... variadic template type pack of arguments
+     *
+     * Input impact for State Machine. If the there is a transition, for which
+     * current state, current guard and an event are matched, the transition
+     * will be performed.
+     *
+     * If the given event causes a transition, and this transition has an
+     * action, it will be called with the arguments `Args...`.
+     */
     template <typename Event, typename... Args>
     void event(Args&&... args) {
       logger.template write<Event>("New event: ");
@@ -206,6 +285,14 @@ namespace pure {
       std::visit(l, m_state);
     }
 
+    /**
+     * @brief Calls a state action
+     *
+     * @tparam Args... variadic template type pack of arguments
+     *
+     * If the current state type is a functor and it is can be called with the
+     * given arguments, it will be called.
+     */
     template <typename... Args>
     void action(Args&&... args) {
       logger_t& ref_log = logger;
@@ -217,11 +304,17 @@ namespace pure {
       std::visit(l, m_state);
     }
 
-    template <class T>
+    /**
+     * @brief Change current guard
+     *
+     * @tparam Guard next guard
+     */
+    template <class Guard>
     inline void guard() {
-      if constexpr (__details::static_check_contains<T, guard_collection>()) {
-        logger.template write<T>("New guard: ");
-        m_guard = T {};
+      if constexpr (__details::static_check_contains<Guard,
+                                                     guard_collection>()) {
+        logger.template write<Guard>("New guard: ");
+        m_guard = Guard {};
       }
     }
   };
@@ -232,6 +325,18 @@ namespace pure {
 
   struct logic_guard_base {};
 
+  /**
+   * @brief Guard logic OR operation
+   *
+   * @tparam Guard a first guard of a pack
+   * @tparam Guards... the rest guards
+   *
+   * Allows to specify a set of guards for the transition. Transition will be
+   * performed if there is an event match and the current guard is matched with
+   * any guard of a set.
+   *
+   * Be aware that State Machine does not check if guard sets are intersected.
+   */
   template <class Guard, class... Guards>
   struct guard_any_of : logic_guard_base {
     static constexpr guard_class type = guard_class::anyof;
