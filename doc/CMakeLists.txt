@@ -6,13 +6,20 @@ find_program(CLANG clang)
 set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
 set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
+set(DOC_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(DOXYGEN_MDFILE ${DOC_DIRECTORY}/mainpage.md)
+set(INPUT_DIRS
+    ${CMAKE_SOURCE_DIR}/include/pure
+    ${DOC_DIRECTORY}
+    ${DOXYGEN_MDFILE})
+string(REPLACE ";" " " INPUT_DIRS_STR "${INPUT_DIRS}")
+
 set(DOXYGEN_PROJECT_NAME        "PureFSM")
 set(DOXYGEN_PROJECT_VERSION)
 set(DOXYGEN_DOC_DIR             ${CMAKE_CURRENT_SOURCE_DIR})
 set(DOXYGEN_OUTPUT_DIR          ${CMAKE_CURRENT_BINARY_DIR})
-set(DOXYGEN_MDFILE)
-set(DOXYGEN_INPUT               ${CMAKE_SOURCE_DIR}/include/pure 
-                                ${DOXYGEN_MDFILE})
+set(DOXYGEN_INPUT               ${INPUT_DIRS_STR})
 set(DOXYGEN_EXAMPLE_PATH        ${CMAKE_SOURCE_DIR}/examples)
 set(DOXYGEN_EXCLUDE_PATTERNS    CMakeLists.txt *.md)
 set(DOXYGEN_EXCLUDE_SYMBOLS     __details)
