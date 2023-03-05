@@ -1240,6 +1240,7 @@ div.headertitle {
 
 dl {
   padding: 0 0 0 0;
+  overflow-x: scroll;
   display: block;
   width: 100%;
   line-break: auto;
