@@ -30,11 +30,13 @@ namespace pure {
   template <class Source, class Event, class Target, class Action,
             class Guard = none>
   struct transition {
+    /** @cond undocumented */
     using source_t = Source;
     using event_t = Event;
     using target_t = Target;
     using action_t = Action;
     using guard_t = Guard;
+    /** @endcond */
   };
 
   /**
@@ -85,6 +87,7 @@ namespace pure {
 
   template <typename... Ts>
   struct transition_table {
+    /** cond undocumented */
     using transitions = tp::type_pack<Ts...>;
 
     using sources = tp::type_pack<typename Ts::source_t...>;
@@ -103,6 +106,7 @@ namespace pure {
     using state_v = typename __details::unpack<state_collection>::type;
     using event_v = typename __details::unpack<event_collection>::type;
     using guard_v = typename __details::unpack<guard_collection>::type;
+    /** @endcond */
 
   private:
     using tr_conds = typename __details::unpack_trs<transitions>::type;
@@ -295,9 +299,9 @@ namespace pure {
     /** \cond undocumented */
     static constexpr __details::guard_class type =
         __details::guard_class::anyof;
-    /** \endcond */
     using guard_pack = tp::type_pack<Guard, Guards...>;
     using pack = guard_pack;
+    /** \endcond */
   };
 
   template <class Guard, class... Guards>
@@ -305,9 +309,9 @@ namespace pure {
     /** \cond undocumented */
     static constexpr __details::guard_class type =
         __details::guard_class::noneof;
-    /** \endcond */
     using guard_pack = tp::type_pack<Guard, Guards...>;
     using pack = guard_pack;
+    /** \endcond */
   };
 
   /** @brief Typedef to guard_none_of */
