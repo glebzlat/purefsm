@@ -21,6 +21,7 @@ jobs:
         run: |
           cmake -S . -B build                 \
             -G "Unix Makefiles"               \
+            -D PUREFSM_TESTING=ON             \
             -D CMAKE_BUILD_TYPE=Release       \
             -D CMAKE_C_COMPILER=clang-14      \
             -D CMAKE_CXX_COMPILER=clang++-14
