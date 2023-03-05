@@ -1,0 +1,31 @@
+name: Docs
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install deps
+        run: |
+          sudo apt update
+          sudo apt install clang cmake doxygen graphviz
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configuration
+        run: |
+          cmake -S . -B build \
+          -G "Unix Makefiles" \
+          -D PUREFSM_DOC=ON
+      - name: Build docs
+        run: cmake --build build
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: build/doc/html
