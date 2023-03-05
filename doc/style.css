@@ -1194,7 +1194,7 @@ div.summary a {
 }
 
 table.classindex {
-  overflow-x: auto;
+  overflow-x: hidden;
   margin: 10px;
   white-space: nowrap;
   margin-left: 3%;
