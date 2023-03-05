@@ -386,6 +386,7 @@ span.ah {
 }
 
 div.classindex ul {
+  overflow-x: hidden;
   list-style: none;
   padding-left: 0;
 }
