@@ -15,14 +15,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
       - name: CMake configuration
         run: |
-          cmake -S . -B build \
-            -G "Unix Makefiles"
-            -D CMAKE_BUILD_TYPE=Release
-            -D CMAKE_C_COMPILER=clang-14
+          cmake -S . -B build                 \
+            -G "Unix Makefiles"               \
+            -D CMAKE_BUILD_TYPE=Release       \
+            -D CMAKE_C_COMPILER=clang-14      \
             -D CMAKE_CXX_COMPILER=clang++-14
 
       - name: Build and run tests
