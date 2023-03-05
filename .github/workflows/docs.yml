@@ -16,6 +16,9 @@ jobs:
           sudo apt install clang cmake doxygen graphviz
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
       - name: Configuration
         run: |
           cmake -S . -B build \
