@@ -67,6 +67,10 @@ div.qindex {
   height: 31px;
 }
 
+div.classindex {
+  overflow-x: hidden;
+}
+
 .titleimg {
   display: block;
   width: 30px;
@@ -386,7 +390,6 @@ span.ah {
 }
 
 div.classindex ul {
-  overflow-x: hidden;
   list-style: none;
   padding-left: 0;
 }
