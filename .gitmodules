@@ -1,7 +1,3 @@
 [submodule "lib/type_pack"]
 	path = lib/type_pack
 	url = https://github.com/edKotinsky/type_pack.git
-[submodule "lib/Catch2"]
-	path = lib/Catch2
-	url = https://github.com/catchorg/Catch2.git
-	branch = 3f0283de7a9c43200033da996ff9093be3ac84dc

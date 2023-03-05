@@ -27,7 +27,6 @@ option(FSM_TESTING "Build and run tests" OFF)
 option(FSM_DOC "Build documentation" OFF)
 
 if (PUREFSM_TESTING)
-    add_subdirectory(${LIB_DIRECTORY}/Catch2)
     add_subdirectory(test)
 endif()
 
