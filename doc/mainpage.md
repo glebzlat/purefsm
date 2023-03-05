@@ -26,23 +26,57 @@ of guards using `any_of` and a negated sets using `none_of`. Negated set of
 guards means that the transition will be performed, if the current guard is not
 appeared in this set.
 
+Suppose that we have the following code snippet:
+
+```cpp
+using transition = pure::tr<StateA, Event, StateB, Action, Guard>;
+using table = pure::transition_table<transition>;
+pure::state_machine<table> machine;
+```
+
+This is a state machine with the only one transition: from StateA to StateB with
+event Event and guard Guard. This transition will be performed only if the
+current state of a machine is StateA, current guard is Guard and machine got an
+event Event. When the transition will be performed, Action will be called. You
+can also pass arguments to an action. If an action is a functor and it is can be
+called with the given arguments, it will be called:
+
+```cpp
+machine.event<Event>(args...);
+```
+
+Not only transitions can have an action, but the states too. So you can
+implement Moore automatons with PureFSM. For to call a state action, you should
+use method `pure::state_machine::action`:
+
+```cpp
+machine.action(args...);
+```
+
+If the current state type is callable and it can be called with arguments 
+`args...`, it will be called.
+
 ## Cloning and Building
 
 ```sh
 git clone --recurse-submodules https://github.com/edKotinsky/purefsm.git
 cd purefsm
+```
+
+### Tests
+
+```sh
 cmake -S . -B build/ -D PUREFSM_TESTING=ON
 cmake --build build/
+```
 
-# Documentation
+### Documentation
+
+```sh
 cmake -S . -B build/ -D PUREFSM_DOC=ON
 cmake --build build/
 ```
 
-PureFSM uses Catch2 framework for testing. So if you don't want to spend
-additional few seconds to download Catch2 submodule, you need to initialize
-submodules manually instead of `--recurse-submodules` option for `git clone`:
+## License
 
-```sh 
-git submodule update --init lib/type_pack
-```
+@ref license "MIT"
