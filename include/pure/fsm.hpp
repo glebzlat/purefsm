@@ -351,6 +351,9 @@ namespace pure {
     using pack = guard_pack;
   };
 
+  template <class Guard>
+  using not_ = guard_none_of<Guard>;
+
   template <class... Guards>
   using any_of = guard_any_of<Guards...>;
 
