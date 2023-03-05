@@ -6,7 +6,11 @@ body {
   height: 100%;
 }
 
-body, table, div, p, dl {
+body,
+table,
+div,
+p,
+dl {
   font: 400 14px/22px Arial, Helvetica, sans-serif;
 }
 
@@ -40,6 +44,12 @@ div.line {
   white-space: pre;
 }
 
+.fragment {
+  text-align: left;
+  direction: ltr;
+  overflow-y: hidden;
+}
+
 div.qindex {
   line-break: anywhere;
 }
@@ -52,7 +62,7 @@ div.qindex {
 }
 
 #wrapper:after {
-  content: '';
+  content: "";
   display: block;
   height: 31px;
 }
@@ -75,6 +85,11 @@ div.qindex {
 
 #titlearea {
   background-color: white;
+}
+
+tr.heading h2 {
+  margin-top: -30px;
+  margin-bottom: 4px;
 }
 
 @media (min-width: 320px) {
@@ -120,6 +135,9 @@ div.qindex {
   }
   table.title {
     font-size: 200%;
+  }
+  tr.heading h2 {
+    margin-top: 12px;
   }
 }
 
@@ -194,7 +212,7 @@ div.qindex {
 
 .title {
   font: 400 14px/28px Arial, Helvetica, sans-serif;
-  font-size: 150%;
+  font-size: 125%;
   font-weight: bold;
   margin: 10px 2px;
 }
@@ -284,7 +302,6 @@ div.line {
   white-space: -moz-pre-wrap; /* Moz */
   white-space: -pre-wrap; /* Opera 4-6 */
   white-space: -o-pre-wrap; /* Opera 7 */
-  white-space: pre-wrap; /* CSS3  */
   word-wrap: break-word; /* IE 5.5+ */
   text-indent: -53px;
   padding-left: 53px;
@@ -303,7 +320,7 @@ div.line {
 }
 
 div.line:after {
-  content: '\000A';
+  content: "\000A";
   white-space: pre;
 }
 
@@ -572,6 +589,7 @@ hr.footer {
 /* @group Member Descriptions */
 
 table.memberdecls {
+  overflow-y: hidden;
   border-spacing: 0px;
   padding: 0px;
 }
@@ -652,7 +670,7 @@ table.memberdecls {
   border-top-right-radius: 4px;
   border-top-left-radius: 4px;
   margin-bottom: -1px;
-  background-image: url('nav_f.png');
+  background-image: url("nav_f.png");
   background-repeat: repeat-x;
   background-color: #e2e8f2;
   line-height: 1.25;
@@ -695,7 +713,7 @@ table.memberdecls {
   -ms-transition: box-shadow 0.5s linear;
   -o-transition: box-shadow 0.5s linear;
   transition: box-shadow 0.5s linear;
-  display: table !important;
+  display: flow-root !important;
   width: 100%;
 }
 
@@ -734,7 +752,7 @@ dl.reflist dt {
 }
 
 .overload {
-  font-family: 'courier new', courier, monospace;
+  font-family: "courier new", courier, monospace;
   font-size: 65%;
 }
 
@@ -746,7 +764,7 @@ dl.reflist dd {
   padding: 6px 10px 2px 10px;
   background-color: #fbfcfd;
   border-top-width: 0;
-  background-image: url('nav_g.png');
+  background-image: url("nav_g.png");
   background-repeat: repeat-x;
   background-color: #ffffff;
   /* opera specific markup */
@@ -815,11 +833,12 @@ dl.reflist dd {
 
 .params .paramdir,
 .tparams .paramdir {
-  font-family: 'courier new', courier, monospace;
+  font-family: "courier new", courier, monospace;
   vertical-align: top;
 }
 
 table.mlabels {
+  white-space: normal;
   border-spacing: 0px;
 }
 
@@ -959,7 +978,7 @@ div.directory {
   width: 24px;
   height: 18px;
   margin-bottom: 4px;
-  background-image: url('folderopen.png');
+  background-image: url("folderopen.png");
   background-position: 0px -4px;
   background-repeat: repeat-y;
   vertical-align: top;
@@ -970,7 +989,7 @@ div.directory {
   width: 24px;
   height: 18px;
   margin-bottom: 4px;
-  background-image: url('folderclosed.png');
+  background-image: url("folderclosed.png");
   background-position: 0px -4px;
   background-repeat: repeat-y;
   vertical-align: top;
@@ -981,7 +1000,7 @@ div.directory {
   width: 24px;
   height: 18px;
   margin-bottom: 4px;
-  background-image: url('doc.png');
+  background-image: url("doc.png");
   background-position: 0px -4px;
   background-repeat: repeat-y;
   vertical-align: top;
@@ -989,7 +1008,7 @@ div.directory {
 }
 
 table.directory {
-  font: 400 14px Roboto, sans-serif;
+  font: 400 14px Arial, Helvetica, sans-serif;
 }
 
 /* @end */
@@ -1081,7 +1100,7 @@ table.fieldtable {
 }
 
 .fieldtable th {
-  background-image: url('nav_f.png');
+  background-image: url("nav_f.png");
   background-repeat: repeat-x;
   background-color: #e2e8f2;
   font-size: 90%;
@@ -1103,7 +1122,7 @@ table.fieldtable {
   top: 0px;
   left: 10px;
   height: 36px;
-  background-image: url('tab_b.png');
+  background-image: url("tab_b.png");
   z-index: 101;
   overflow: hidden;
   font-size: 13px;
@@ -1111,7 +1130,7 @@ table.fieldtable {
 
 .navpath ul {
   font-size: 11px;
-  background-image: url('tab_b.png');
+  background-image: url("tab_b.png");
   background-repeat: repeat-x;
   background-position: 0 -5px;
   height: 30px;
@@ -1128,7 +1147,7 @@ table.fieldtable {
   float: left;
   padding-left: 10px;
   padding-right: 15px;
-  background-image: url('bc_s.png');
+  background-image: url("bc_s.png");
   background-repeat: no-repeat;
   background-position: right;
   color: #364d7c;
@@ -1140,7 +1159,7 @@ table.fieldtable {
   text-decoration: none;
   outline: none;
   color: #283a5d;
-  font-family: 'Lucida Grande', Geneva, Helvetica, Arial, sans-serif;
+  font-family: "Lucida Grande", Geneva, Helvetica, Arial, sans-serif;
   text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.9);
   text-decoration: none;
 }
@@ -1165,7 +1184,7 @@ div.summary {
   float: right;
   font-size: 8pt;
   padding-right: 5px;
-  width: 50%;
+  width: 100%;
   text-align: right;
 }
 
@@ -1195,16 +1214,16 @@ div.ingroups a {
 }
 
 div.header {
-  background-image:url('nav_h.png');
-  background-repeat:repeat-x;
-  background-color: #F9FAFC;
-  border-bottom: 1px solid #D5D5D5;
+  background-image: url("nav_h.png");
+  background-repeat: repeat-x;
+  background-color: #f9fafc;
+  border-bottom: 1px solid #d5d5d5;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 5px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 12px;
   padding-right: 12px;
-  border-bottom: 1px solid #C4CFE5;
+  border-bottom: 1px solid #c4cfe5;
   border-top-right-radius: 8px;
   border-top-left-radius: 8px;
   margin-top: 10px;
@@ -1463,7 +1482,7 @@ div.toc {
 }
 
 div.toc li {
-  background: url('bdwn.png') no-repeat scroll 0 5px transparent;
+  background: url("bdwn.png") no-repeat scroll 0 5px transparent;
   font: 10px/1.2 Verdana, DejaVu Sans, Geneva, sans-serif;
   margin-top: 5px;
   padding-left: 10px;
@@ -1545,11 +1564,6 @@ div.toc li.level4 {
   display: none;
 }
 
-tr.heading h2 {
-  margin-top: 12px;
-  margin-bottom: 4px;
-}
-
 /* tooltip related style info */
 
 .ttc {
@@ -1598,7 +1612,7 @@ tr.heading h2 {
 
 #powerTip:before,
 #powerTip:after {
-  content: '';
+  content: "";
   position: absolute;
   margin: 0px;
 }
@@ -1620,7 +1634,7 @@ tr.heading h2 {
 #powerTip.sw:after,
 #powerTip.sw:before {
   border: solid transparent;
-  content: ' ';
+  content: " ";
   height: 0;
   width: 0;
   position: absolute;
@@ -1848,7 +1862,6 @@ table.markdownTable th {
   border: 1px solid #2d4068;
   padding: 3px 7px 2px;
 }
-
 
 th.markdownTableHeadLeft,
 th.markdownTableHeadRight,
