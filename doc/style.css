@@ -1366,6 +1366,10 @@ dl.bug {
   padding-left: 3px;
   border-left: 4px solid;
   border-color: #c08050;
+  display: block;
+  width: 100%;
+  line-break: auto;
+  white-space: break-spaces;
 }
 
 dl.bug.DocNodeRTL {
