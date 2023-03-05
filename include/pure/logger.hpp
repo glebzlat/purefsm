@@ -8,26 +8,6 @@
 
 #include <ostream>
 
-/**
- * @page fsm_logger State Machine Logger
- *
- * A State Machine Logger is required to define two methods:
- *
- * Template method `write`, that allows to inspect types
- * ```cpp
- * template <typename T>
- * void write(const char*);
- * ```
- *
- * And non-template method `write`, that allows to just send log messages
- * ```cpp
- * void write(const char*);
- * ```
- *
- * Template `write` method supposed to use compile-time reflection.
- * The possible log message may be `"${str}: ${type}"`.
- */
-
 namespace pure {
 
   /**
@@ -89,15 +69,6 @@ namespace pure {
 
   } // namespace logger
 
-  /**
-   * @brief State machine stdout logger
-   *
-   * @tparam stream to write log messages
-   *
-   * Stream may be `std::cout`, `std::cerr` and `std::clog`.
-   *
-   * See @ref fsm_logger
-   */
   template <std::ostream& stream>
   class stdout_logger {
   public:
@@ -111,14 +82,6 @@ namespace pure {
     inline void write(const char* str) { stream << str << std::endl; }
   };
 
-  /**
-   * @brief State machine logger with user-defined stream
-   *
-   * In case if logs needs to be written to a file, and there is no possibility
-   * to redirect program standard or error stream, user can apply this logger.
-   *
-   * See @ref fsm_logger
-   */
   class user_logger {
   private:
     std::ostream& stream;

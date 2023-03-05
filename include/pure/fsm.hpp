@@ -25,23 +25,8 @@
  */
 namespace pure {
 
-  /**
-   * @brief Struct that defines empty type
-   *
-   * none can be used as an transition action, if there is no action, as a
-   * guard or as an event.
-   */
   struct none {};
 
-  /**
-   * @brief Represents a transition between two states
-   *
-   * Just a metaprogramming container of types. Transition contains a source
-   * state, a target state, an event, which causes state change from source to
-   * target and a guard, which determines, is state changing allowed. Also
-   * transition contains an action, that is will be performed when this
-   * transition is happened.
-   */
   template <class Source, class Event, class Target, class Action,
             class Guard = none>
   struct transition {
@@ -54,8 +39,6 @@ namespace pure {
 
   /**
    * @brief Typedef to transition
-   *
-   * Just for less typing.
    */
   template <class Source, class Event, class Target, class Action, class Guard>
   using tr = transition<Source, Event, Target, Action, Guard>;
@@ -100,13 +83,6 @@ namespace pure {
     };
   } // namespace __details
 
-  /**
-   * @brief Determines the behaviour of an FSM
-   *
-   * Transition table contains transitions between State Machine states.
-   * The first state in the first transition (first column) of a table will be
-   * chosen as a beginning state.
-   */
   template <typename... Ts>
   struct transition_table {
     using transitions = tp::type_pack<Ts...>;
@@ -156,15 +132,6 @@ namespace pure {
     }
   } // namespace __details
 
-  /**
-   * @brief Empty logger
-   *
-   * Dummy logger, that is specified as a State Machine logger by default.
-   * If you want to write your own logger, you must to define the same
-   * interface.
-   *
-   * See @ref fsm_logger
-   */
   class empty_logger {
   public:
     /**
@@ -179,12 +146,6 @@ namespace pure {
     inline void write(const char*) noexcept {}
   };
 
-  /**
-   * @brief State Machine
-   *
-   * @tparam Table transition_table
-   * @tparam Logger type that provides a logger interface
-   */
   template <class Table, class Logger = empty_logger>
   class state_machine {
   private:
@@ -321,42 +282,43 @@ namespace pure {
 
   /* guard definitions */
 
-  enum class guard_class { noneof, anyof };
+  namespace __details {
 
-  struct logic_guard_base {};
+    enum class guard_class { noneof, anyof };
 
-  /**
-   * @brief Guard logic OR operation
-   *
-   * @tparam Guard a first guard of a pack
-   * @tparam Guards... the rest guards
-   *
-   * Allows to specify a set of guards for the transition. Transition will be
-   * performed if there is an event match and the current guard is matched with
-   * any guard of a set.
-   *
-   * Be aware that State Machine does not check if guard sets are intersected.
-   */
+    struct logic_guard_base {};
+
+  } // namespace __details
+
   template <class Guard, class... Guards>
-  struct guard_any_of : logic_guard_base {
-    static constexpr guard_class type = guard_class::anyof;
+  struct guard_any_of : __details::logic_guard_base {
+    /** \cond undocumented */
+    static constexpr __details::guard_class type =
+        __details::guard_class::anyof;
+    /** \endcond */
     using guard_pack = tp::type_pack<Guard, Guards...>;
     using pack = guard_pack;
   };
 
   template <class Guard, class... Guards>
-  struct guard_none_of : logic_guard_base {
-    static constexpr guard_class type = guard_class::noneof;
+  struct guard_none_of : __details::logic_guard_base {
+    /** \cond undocumented */
+    static constexpr __details::guard_class type =
+        __details::guard_class::noneof;
+    /** \endcond */
     using guard_pack = tp::type_pack<Guard, Guards...>;
     using pack = guard_pack;
   };
 
+  /** @brief Typedef to guard_none_of */
   template <class Guard>
   using not_ = guard_none_of<Guard>;
 
+  /** @brief Typedef to guard_any_of */
   template <class... Guards>
   using any_of = guard_any_of<Guards...>;
 
+  /** @brief Typedef to guard_none_of */
   template <class... Guards>
   using none_of = guard_none_of<Guards...>;
 
