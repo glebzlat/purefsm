@@ -381,22 +381,22 @@ $(function() {
 <div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160; </div>
 <div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;  <span class="keyword">template</span> &lt;<span class="keyword">class</span> Guard, <span class="keyword">class</span>... Guards&gt;</div>
 <div class="line"><a name="l00294"></a><span class="lineno"><a class="line" href="structpure_1_1guard__any__of.html">  294</a></span>&#160;  <span class="keyword">struct</span> <a class="code" href="structpure_1_1guard__any__of.html">guard_any_of</a> : __details::logic_guard_base {</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="comment">/** \cond undocumented */</span></div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="comment">/** @cond undocumented */</span></div>
 <div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="keyword">static</span> <span class="keyword">constexpr</span> __details::guard_class type =</div>
 <div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;        __details::guard_class::anyof;</div>
 <div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    <span class="keyword">using</span> guard_pack = tp::type_pack&lt;Guard, Guards...&gt;;</div>
 <div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    <span class="keyword">using</span> pack = guard_pack;</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="comment">/** \endcond */</span></div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="comment">/** @endcond */</span></div>
 <div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;  };</div>
 <div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160; </div>
 <div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;  <span class="keyword">template</span> &lt;<span class="keyword">class</span> Guard, <span class="keyword">class</span>... Guards&gt;</div>
 <div class="line"><a name="l00304"></a><span class="lineno"><a class="line" href="structpure_1_1guard__none__of.html">  304</a></span>&#160;  <span class="keyword">struct</span> <a class="code" href="structpure_1_1guard__none__of.html">guard_none_of</a> : __details::logic_guard_base {</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    <span class="comment">/** \cond undocumented */</span></div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    <span class="comment">/** @cond undocumented */</span></div>
 <div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="keyword">static</span> <span class="keyword">constexpr</span> __details::guard_class type =</div>
 <div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;        __details::guard_class::noneof;</div>
 <div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    <span class="keyword">using</span> guard_pack = tp::type_pack&lt;Guard, Guards...&gt;;</div>
 <div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    <span class="keyword">using</span> pack = guard_pack;</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    <span class="comment">/** \endcond */</span></div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    <span class="comment">/** @endcond */</span></div>
 <div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;  };</div>
 <div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160; </div>
 <div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;  <span class="comment">/** @brief Typedef to guard_none_of */</span></div>
