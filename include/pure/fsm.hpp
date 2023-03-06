@@ -50,6 +50,9 @@ namespace pure {
     template <class Gd, class Target>
     struct match;
 
+    template <class Guard, class Target>
+    inline constexpr bool match_v = match<Guard, Target>::value;
+
     template <class Guard>
     struct is_logical_guard;
 
@@ -178,15 +181,16 @@ namespace pure {
       }
     }
 
-    template <class State, class Event, class Pack, std::size_t Idx>
+    template <class State, class Event, class Guard, class Pack,
+              std::size_t Idx>
     struct event_impl {
       template <typename... Args>
       void operator()(state_v&, guard_v&, Args&&...) {}
     };
 
-    template <class State, class Event, std::size_t Idx, typename T,
-              typename... Ts>
-    struct event_impl<State, Event, tp::type_pack<T, Ts...>, Idx> {
+    template <class State, class Event, class Guard, std::size_t Idx,
+              typename T, typename... Ts>
+    struct event_impl<State, Event, Guard, tp::type_pack<T, Ts...>, Idx> {
       template <typename... Args>
       void operator()(state_v& state, guard_v& guard, logger_t& log,
                       Args&&... args) {
@@ -196,14 +200,14 @@ namespace pure {
         using target_t = typename T::target_t;
         using action_t = typename T::action_t;
 
-        __details::visitor<guard_t> vis;
-        if (std::is_same_v<State, state_t> && std::is_same_v<Event, event_t> &&
-            std::visit(vis(), guard)) {
+        if constexpr (std::is_same_v<State, state_t> &&
+                      std::is_same_v<Event, event_t> &&
+                      __details::match_v<Guard, guard_t>) {
           log.template write<target_t>("Change state to ");
           state = target_t {};
           invoke(log, action_t {}, std::forward<Args>(args)...);
         } else
-          event_impl<State, Event, tp::type_pack<Ts...>, Idx + 1> {}(
+          event_impl<State, Event, Guard, tp::type_pack<Ts...>, Idx + 1> {}(
               state, guard, log, std::forward<Args>(args)...);
       }
     };
@@ -242,10 +246,14 @@ namespace pure {
       state_v& ref_state = m_state;
       guard_v& ref_guard = m_guard;
       auto l = [&](const auto& arg) {
-        using event_t = Event;
-        using state_t = std::decay_t<decltype(arg)>;
-        event_impl<state_t, event_t, transition_pack, 0> {}(
-            ref_state, ref_guard, logger, std::forward<Args>(args)...);
+        auto gl = [&](const auto& arg2) {
+          using event_t = Event;
+          using state_t = std::decay_t<decltype(arg)>;
+          using guard_t = std::decay_t<decltype(arg2)>;
+          event_impl<state_t, event_t, guard_t, transition_pack, 0> {}(
+              ref_state, ref_guard, logger, std::forward<Args>(args)...);
+        };
+        std::visit(gl, ref_guard);
       };
       std::visit(l, m_state);
     }
