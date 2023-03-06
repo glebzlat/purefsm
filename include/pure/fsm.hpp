@@ -292,22 +292,22 @@ namespace pure {
 
   template <class Guard, class... Guards>
   struct guard_any_of : __details::logic_guard_base {
-    /** \cond undocumented */
+    /** @cond undocumented */
     static constexpr __details::guard_class type =
         __details::guard_class::anyof;
     using guard_pack = tp::type_pack<Guard, Guards...>;
     using pack = guard_pack;
-    /** \endcond */
+    /** @endcond */
   };
 
   template <class Guard, class... Guards>
   struct guard_none_of : __details::logic_guard_base {
-    /** \cond undocumented */
+    /** @cond undocumented */
     static constexpr __details::guard_class type =
         __details::guard_class::noneof;
     using guard_pack = tp::type_pack<Guard, Guards...>;
     using pack = guard_pack;
-    /** \endcond */
+    /** @endcond */
   };
 
   /** @brief Typedef to guard_none_of */
