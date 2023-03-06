@@ -7,7 +7,6 @@
 #define PURE_FSM
 
 #include <cstddef>
-#include <functional>
 
 /**
  * @bug Clangd can't find `<type_pack.hpp>` header, but can find it by
@@ -177,7 +176,7 @@ namespace pure {
         std::is_nothrow_invocable_v<F, Args...>) {
       if constexpr (std::is_invocable<F, Args...>::value) {
         logger.write("Calling an action...");
-        std::invoke(f, std::forward<Args>(args)...);
+        f(std::forward<Args>(args)...);
       }
     }
 
