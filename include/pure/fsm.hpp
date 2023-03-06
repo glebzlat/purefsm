@@ -89,7 +89,7 @@ namespace pure {
 
   template <typename... Ts>
   struct transition_table {
-    /** cond undocumented */
+    /** @cond undocumented */
     using transitions = tp::type_pack<Ts...>;
 
     using sources = tp::type_pack<typename Ts::source_t...>;
