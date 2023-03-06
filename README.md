@@ -1,5 +1,9 @@
 # PureFSM
 
+[![clang](https://github.com/edKotinsky/purefsm/actions/workflows/clang.yml/badge.svg)](https://github.com/edKotinsky/purefsm/actions/workflows/clang.yml)
+ [![gcc](https://github.com/edKotinsky/purefsm/actions/workflows/gcc.yml/badge.svg)](https://github.com/edKotinsky/purefsm/actions/workflows/gcc.yml)
+ [![Docs](https://github.com/edKotinsky/purefsm/actions/workflows/docs.yml/badge.svg)](https://github.com/edKotinsky/purefsm/actions/workflows/docs.yml)
+
 C++ finite state machine, written without dynamic memory allocation and RTTI -
 only with _pure_ template metaprogramming. Written in C++17.
 
