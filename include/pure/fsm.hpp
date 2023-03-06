@@ -120,22 +120,22 @@ namespace pure {
 
   namespace __details {
 
-    template <class T>
-    struct visitor {
-      inline auto operator()() {
-        return [&](const auto& arg) -> bool {
-          using arg_t = std::decay_t<decltype(arg)>;
-          return match<arg_t, T>::value;
-        };
-      }
-    };
-
     template <class T, class Pack>
     constexpr bool static_check_contains() {
       constexpr bool contains = tp::contains<T, Pack>::value;
       static_assert(contains);
       return contains;
     }
+
+    template <class FSMLogger, class F, typename... Args>
+    inline void invoke(FSMLogger& logger, F&& f, Args&&... args) noexcept(
+        std::is_nothrow_invocable_v<F, Args...>) {
+      if constexpr (std::is_invocable<F, Args...>::value) {
+        logger.write("Calling an action...");
+        f(std::forward<Args>(args)...);
+      }
+    }
+
   } // namespace __details
 
   class empty_logger {
@@ -169,17 +169,6 @@ namespace pure {
     using logger_t = Logger;
     logger_t logger;
 
-    /* Private methods */
-
-    template <class FSMLogger, class F, typename... Args>
-    static void invoke(FSMLogger& logger, F&& f, Args&&... args) noexcept(
-        std::is_nothrow_invocable_v<F, Args...>) {
-      if constexpr (std::is_invocable<F, Args...>::value) {
-        logger.write("Calling an action...");
-        f(std::forward<Args>(args)...);
-      }
-    }
-
     template <class State, class Event, class Guard, class Pack,
               std::size_t Idx>
     struct event_impl {
@@ -204,7 +193,7 @@ namespace pure {
                       __details::match_v<Guard, guard_t>) {
           log.template write<target_t>("Change state to ");
           state = target_t {};
-          invoke(log, action_t {}, std::forward<Args>(args)...);
+          __details::invoke(log, action_t {}, std::forward<Args>(args)...);
         } else
           event_impl<State, Event, Guard, tp::type_pack<Ts...>, Idx + 1> {}(
               state, log, std::forward<Args>(args)...);
@@ -271,7 +260,7 @@ namespace pure {
       auto l = [&](const auto& arg) {
         using state_t = std::decay_t<decltype(arg)>;
         ref_log.template write<state_t>("Attempt to call an action for: ");
-        invoke(ref_log, state_t {}, std::forward<Args>(args)...);
+        __details::invoke(ref_log, state_t {}, std::forward<Args>(args)...);
       };
       std::visit(l, m_state);
     }
