@@ -38,7 +38,6 @@ var menudata={children:[
 {text:"Class Hierarchy",url:"inherits.html"},
 {text:"Data Fields",url:"functions.html",children:[
 {text:"All",url:"functions.html"},
-{text:"Functions",url:"functions_func.html"},
-{text:"Typedefs",url:"functions_type.html"}]}]},
+{text:"Functions",url:"functions_func.html"}]}]},
 {text:"Files",url:"files.html",children:[
 {text:"File List",url:"files.html"}]}]}
