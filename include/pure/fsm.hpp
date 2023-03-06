@@ -185,14 +185,14 @@ namespace pure {
               std::size_t Idx>
     struct event_impl {
       template <typename... Args>
-      void operator()(state_v&, guard_v&, Args&&...) {}
+      void operator()(state_v&, Args&&...) {}
     };
 
     template <class State, class Event, class Guard, std::size_t Idx,
               typename T, typename... Ts>
     struct event_impl<State, Event, Guard, tp::type_pack<T, Ts...>, Idx> {
       template <typename... Args>
-      void operator()(state_v& state, guard_v& guard, logger_t& log,
+      void operator()(state_v& state, logger_t& log,
                       Args&&... args) {
         using state_t = typename T::source_t;
         using event_t = typename T::event_t;
@@ -208,7 +208,7 @@ namespace pure {
           invoke(log, action_t {}, std::forward<Args>(args)...);
         } else
           event_impl<State, Event, Guard, tp::type_pack<Ts...>, Idx + 1> {}(
-              state, guard, log, std::forward<Args>(args)...);
+              state, log, std::forward<Args>(args)...);
       }
     };
 
@@ -251,7 +251,7 @@ namespace pure {
           using state_t = std::decay_t<decltype(arg)>;
           using guard_t = std::decay_t<decltype(arg2)>;
           event_impl<state_t, event_t, guard_t, transition_pack, 0> {}(
-              ref_state, ref_guard, logger, std::forward<Args>(args)...);
+              ref_state, logger, std::forward<Args>(args)...);
         };
         std::visit(gl, ref_guard);
       };
