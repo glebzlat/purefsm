@@ -25,6 +25,10 @@ namespace pure {
      * @brief Compile-time reflection
      *
      * Returns a string that is a name of a type T. Compiler dependent.
+     * If the compiler does not supports compile-time function signature
+     * reflection, the function will be returning an empty string.
+     *
+     * See @ref fsm_logger
      */
 
 #if defined(__GNUC__) || defined(__MINGW32__) || defined(__clang__) ||         \
