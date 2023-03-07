@@ -173,14 +173,14 @@ namespace pure {
               std::size_t Idx>
     struct event_impl {
       template <typename... Args>
-      void operator()(state_v&, Args&&...) {}
+      inline void operator()(state_v&, Args&&...) noexcept {}
     };
 
     template <class State, class Event, class Guard, std::size_t Idx,
               typename T, typename... Ts>
     struct event_impl<State, Event, Guard, tp::type_pack<T, Ts...>, Idx> {
       template <typename... Args>
-      void operator()(state_v& state, logger_t& log,
+      inline void operator()(state_v& state, logger_t& log,
                       Args&&... args) {
         using state_t = typename T::source_t;
         using event_t = typename T::event_t;
@@ -213,7 +213,7 @@ namespace pure {
      */
     state_machine(logger_t custom_logger)
         : m_state(tp::at_t<0, typename Table::sources> {}), m_guard(none {}),
-          logger(custom_logger) {}
+          logger(std::move(custom_logger)) {}
 
     /**
      * @brief Pass an event to a State Machine
