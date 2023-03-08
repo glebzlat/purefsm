@@ -44,6 +44,10 @@ div.line {
   white-space: pre;
 }
 
+div.line:nth-of-type(even) {
+  background-color: #e6e6ff;
+}
+
 .fragment {
   text-align: left;
   direction: ltr;
@@ -336,7 +340,7 @@ div.line.glow {
 span.lineno {
   padding-right: 4px;
   text-align: right;
-  border-right: 2px solid #0f0;
+  border-right: 2px solid #0464f9;
   background-color: #e8e8e8;
   white-space: pre;
 }
