@@ -311,7 +311,7 @@ div.line {
   white-space: -pre-wrap; /* Opera 4-6 */
   white-space: -o-pre-wrap; /* Opera 7 */
   word-wrap: break-word; /* IE 5.5+ */
-  text-indent: -53px;
+  text-indent: 0px;
   padding-left: 53px;
   padding-bottom: 0px;
   margin: 0px;
@@ -325,6 +325,7 @@ div.line {
   -o-transition-duration: 0.5s;
   transition-property: background-color, box-shadow;
   transition-duration: 0.5s;
+  display: table-row;
 }
 
 div.line:after {
