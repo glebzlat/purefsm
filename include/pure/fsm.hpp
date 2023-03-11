@@ -328,9 +328,20 @@ namespace pure {
       static const bool value = false;
     };
 
+    template <class Guard>
+    struct is_none_guard {
+      static constexpr bool value = false;
+    };
+
+    template <>
+    struct is_none_guard<none> {
+      static constexpr bool value = true;
+    };
+
     template <class Guard, class Target>
     struct match_impl<Guard, Target,
-                      std::enable_if_t<std::is_same_v<Guard, Target>>> {
+                      std::enable_if_t<std::is_same_v<Guard, Target> &&
+                                       !is_none_guard<Target>::value>> {
       static constexpr bool value = true;
     };
 
@@ -349,6 +360,12 @@ namespace pure {
         std::enable_if_t<
             Target::type == guard_class::noneof &&
             !tp::contains<Guard, typename Target::guard_pack>::value>> {
+      static constexpr bool value = true;
+    };
+
+    template <class Guard, class Target>
+    struct match_impl<Guard, Target,
+                      std::enable_if_t<is_none_guard<Target>::value>> {
       static constexpr bool value = true;
     };
 
