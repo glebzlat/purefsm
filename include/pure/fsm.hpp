@@ -180,8 +180,7 @@ namespace pure {
               typename T, typename... Ts>
     struct event_impl<State, Event, Guard, tp::type_pack<T, Ts...>, Idx> {
       template <typename... Args>
-      inline void operator()(state_v& state, logger_t& log,
-                      Args&&... args) {
+      inline void operator()(state_v& state, logger_t& log, Args&&... args) {
         using state_t = typename T::source_t;
         using event_t = typename T::event_t;
         using guard_t = typename T::guard_t;
