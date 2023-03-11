@@ -56,6 +56,8 @@ machine.action(args...);
 If the current state type is callable and it can be called with arguments 
 `args...`, it will be called.
 
+`none` guard matches with any guard.
+
 ## Cloning and Building
 
 ```sh
