@@ -201,7 +201,7 @@ namespace pure {
     };
 
   public:
-    state_machine()
+    inline state_machine()
         : m_state(tp::at_t<0, typename Table::sources> {}), m_guard(none {}) {}
 
     /**
@@ -211,7 +211,7 @@ namespace pure {
      * user can define a template type of State Machine as a reference to a
      * logger and pass a logger by reference; or pass it by value.
      */
-    state_machine(logger_t custom_logger)
+    inline state_machine(logger_t custom_logger)
         : m_state(tp::at_t<0, typename Table::sources> {}), m_guard(none {}),
           logger(std::move(custom_logger)) {}
 
