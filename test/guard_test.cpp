@@ -83,3 +83,37 @@ TEST_CASE("Guard test") {
     REQUIRE(state == current_state::C);
   }
 }
+
+struct DummyEvent {};
+
+TEST_CASE("Current guard is not matter, when the transition guard is `none`") {
+  current_state state = current_state::None;
+
+  using pure::none;
+  using pure::tr;
+
+  using table =
+      pure::transition_table<tr<StateA, EventAB, StateB, none, none>,
+                             tr<StateA, DummyEvent, StateC, none, GuardAB>,
+                             tr<StateA, DummyEvent, StateC, none, GuardAC>>;
+  using logger = pure::stdout_logger<std::cout>;
+  pure::state_machine<table, logger> machine;
+
+  machine.action(state);
+
+  REQUIRE(state == current_state::A);
+
+  SECTION("Moving to State B with GuardAB") {
+    machine.guard<GuardAB>();
+    machine.event<EventAB>();
+    machine.action(state);
+    REQUIRE(state == current_state::B);
+  }
+
+  SECTION("Moving to State B with GuardAC") {
+    machine.guard<GuardAC>();
+    machine.event<EventAB>();
+    machine.action(state);
+    REQUIRE(state == current_state::B);
+  }
+}
